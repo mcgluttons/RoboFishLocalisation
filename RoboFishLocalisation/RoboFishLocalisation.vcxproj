@@ -157,10 +157,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\colorprocessing.cpp" />
+    <ClCompile Include="Source\contourprocessing.cpp" />
+    <ClCompile Include="Source\imageprocessing.cpp" />
     <ClCompile Include="Source\main.cpp" />
     <ClCompile Include="Source\myopencv.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\colorprocessing.h" />
+    <ClInclude Include="Source\contourprocessing.h" />
+    <ClInclude Include="Source\imageprocessing.h" />
     <ClInclude Include="Source\myopencv.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
