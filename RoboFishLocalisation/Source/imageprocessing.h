@@ -23,7 +23,7 @@
 
 void performManualColorThreshold(cv::Mat);
 void testColorThreshold(cv::Mat);
-void findContours(cv::Mat);
+cv::Mat findContours(cv::Mat, cv::Mat);
 cv::Mat performColorThreshold(cv::Mat);
 
 #endif // !IMAGEPROCESSING_H

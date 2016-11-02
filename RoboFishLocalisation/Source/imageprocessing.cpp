@@ -52,21 +52,19 @@ void performManualColorThreshold(cv::Mat frame) {
 	displayFrame("Color Thresholded", thresh_frame);
 }
 
-void findContours(cv::Mat frame) {
+cv::Mat findContours(cv::Mat frame, cv::Mat thresh_frame) {
 	int x, y;
-	displayFrame("Original", frame);
-	cv::Mat thresh_frame;
-	thresh_frame = performColorThreshold(frame);
-	displayFrame("Color Thresh", thresh_frame);
 	std::vector<std::vector<cv::Point>> contours;
 	contours = getFrameContours(thresh_frame);
 	int index = findLargestContourIndex(contours);
 	if (index != -1) {
-		cv::drawContours(frame, contours, index, CV_RGB(255, 255, 0), 3);
+		cv::drawContours(frame, contours, index, CV_RGB(255, 0, 255), 2);
 		findContourCenter(contours[index], x, y);
-		std::cout << "x: " << x << " y: " << y << std::endl;
+		cv::putText(frame, "Fish at (" + std::to_string(x) + "," + std::to_string(y) + ")", cv::Point(x, y), 1, 1, CV_RGB(0, 255, 255), 2);
+		//std::cout << "x: " << x << " y: " << y << std::endl;
 	}
-	displayFrame("Contours", frame);
+	//displayFrame("Contours", frame);
+	return frame;
 }
 
 

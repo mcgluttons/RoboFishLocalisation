@@ -7,11 +7,12 @@
 
 
 
-cv::VideoCapture openVideoCapture(std::string);
+cv::VideoCapture openVideoRecording(std::string);
+cv::VideoCapture openVideoCapture(int);
 void createDisplay(std::string);
 void displayFrame(std::string, cv::Mat);
-void saveFrame(cv::Mat);
-cv::VideoWriter makeVideoWriter(cv::VideoCapture);
+void saveFrame(cv::Mat, int&);
+cv::VideoWriter makeVideoWriter(cv::VideoCapture, std::string);
 void saveFrameToVideo(cv::VideoWriter, cv::Mat);
 cv::Mat openImage(char*);
 

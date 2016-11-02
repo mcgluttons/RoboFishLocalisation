@@ -14,22 +14,33 @@
 int imageCount = 0;
 
 /*
+* Function: openVideoRecording
+* Parameters: std::string
+* Return: cv::VideoCapture
+* Purpose: Open a stream to a camera and return it
+*/
+cv::VideoCapture openVideoRecording(std::string arg) {
+	cv::VideoCapture capture(arg);
+	if (!capture.isOpened()) {
+		std::cout << "Recording failed to open" << std::endl;
+		exit(EXIT_FAILURE);
+	}
+	return capture; // recorded capture
+}
+
+/*
 * Function: openVideoCapture
 * Parameters: std::string
 * Return: cv::VideoCapture
 * Purpose: Open a stream to a camera and return it
 */
-cv::VideoCapture openVideoCapture(std::string arg) {
+cv::VideoCapture openVideoCapture(int arg) {
 	cv::VideoCapture capture(arg);
 	if (!capture.isOpened()) {
-		capture.open(std::stoi(arg));
-		if (!capture.isOpened()) {
-			std::cout << "Camera failed to open" << std::endl;
-			exit(EXIT_FAILURE);
-		}
-		return capture;
+		std::cout << "Recording failed to open" << std::endl;
+		exit(EXIT_FAILURE);
 	}
-	return capture;
+	return capture; // recorded capture
 }
 
 /*
@@ -61,13 +72,9 @@ void displayFrame(std::string windowName, cv::Mat frame) {
 * Return: void
 * Purpose: save a frame to a png image
 */
-void saveFrame(cv::Mat frame) {
-	std::stringstream ss;
-	ss << imageCount++;
-
-	std::string filename = "capture.png";
-	//	+  ss.str()
-	//	+ ".png";
+void saveFrame(cv::Mat frame, int &count) {
+	std::string filename = "capture" + std::to_string(count) + ".png";
+	count++;
 	cv::imwrite(filename, frame);
 }
 
@@ -77,10 +84,12 @@ void saveFrame(cv::Mat frame) {
 * Return: cv::VideoWriter
 * Purpose: create a video writer for a specific video capture
 */
-cv::VideoWriter makeVideoWriter(cv::VideoCapture capture) {
+
+//CV_FOURCC('D', 'I', 'V', 'X')
+cv::VideoWriter makeVideoWriter(cv::VideoCapture capture, std::string filename) {
 	int frame_width = capture.get(CV_CAP_PROP_FRAME_WIDTH);
 	int frame_height = capture.get(CV_CAP_PROP_FRAME_HEIGHT);
-	cv::VideoWriter recorder("input_recording.avi", CV_FOURCC('D', 'I', 'V', 'X'), 30, cv::Size(frame_width, frame_height), true);
+	cv::VideoWriter recorder(filename, -1, 30, cv::Size(frame_width, frame_height), true);
 	return recorder;
 }
 

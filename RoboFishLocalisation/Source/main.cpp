@@ -18,41 +18,79 @@ void getColorThresholdValues(cv::VideoCapture);
 void getContourAreaValues(cv::VideoCapture);
 
 int main(int argc, char** argv) {
-	help();
-	// select what the input type will be
-	if (argc < 2) { // argv[0] will be executable name
-		std::cout << "Please use a valid command following the program executable." << std::endl;
-		return 0;
-	}
-	if (std::strcmp(argv[1], "-cap") == 0) {
-		// open a live capture and do real time processing
-	}
-	else if (std::strcmp(argv[1], "-vid") == 0) {
-		// open an existing video file
-		cv::VideoCapture capture = openVideoCapture(argv[2]);
+	
+	bool diffDetection = false;
+	bool threshTesting = false;
+	bool webCamera = false;
+	bool camChecked = false;
+	bool recordInput = false;
+	cv::VideoCapture capture1;
+	cv::VideoCapture capture2;
 
-		while (capture.get(CV_CAP_PROP_POS_FRAMES) + 1 < capture.get(CV_CAP_PROP_FRAME_COUNT) - 1) {
-			// do the processing
+	help();
+	
+	for (int i = 1; i < argc - 1; i++) {
+		if (std::strcmp(argv[i], "-d")) {
+			// perform image differencing
+			diffDetection = true;
+		}
+		else if (std::strcmp(argv[i], "-c")) {
+			// perform color threshold testing
+			threshTesting = true;
+		}
+		else if (std::strcmp(argv[i], "-o")) {
+			// open recording as video capture
+			capture1 = openVideoRecording(argv[i + 1]);
+			i++;
+		}
+		else if (std::strcmp(argv[i], "-r")) {
+			// record input capture
+			recordInput = true;
+		}
+		else if (std::strcmp(argv[i], "-w")) {
+			camChecked = true;
+			// web camera or not
+			if (std::stoi(argv[i]) != 0) {
+				webCamera = true;
+			}
+			i++;
+		}
+		else if (std::strcmp(argv[1], "-h") == 0) {
+			help();
+		}
+		else {
+			std::cout << "Please type -h to see all possible commands." << std::endl;
+			return 0;
 		}
 	}
-	else if (std::strcmp(argv[1], "-test") == 0) {
-		// test color filtering instead of image differences
-		cv::VideoCapture capture = openVideoCapture(argv[2]);
-		//getColorThresholdValues(capture);
-		processRecCaptureColor(capture);
+
+	// webcamera parameter must be specified
+	if (!camChecked) {
+		std::cout << "Please specify whether there is a webcamera on your PC." << std::endl;
+		return(0);
 	}
-	else if (std::strcmp(argv[1], "-rec") == 0) {
-		// open video stream, display frame to user, and save frames to new video file
-		cv::VideoCapture capture = openVideoCapture(argv[2]);
-		recordInputCapture(capture);
+
+	// capture.get(CV_CAP_PROP_POS_FRAMES) + 1 < capture.get(CV_CAP_PROP_FRAME_COUNT) - 1
+
+	// start a live capture if a recorded one is not provided
+	if (!capture1.isOpened) {
+		if (!webCamera) {
+			capture1 = openVideoCapture(0);
+			capture2 = openVideoCapture(1);
+		}
+		else {
+			capture1 = openVideoCapture(1);
+			capture2 = openVideoCapture(2);
+		}
 	}
-	else if (std::strcmp(argv[1], "-help") == 0) {
-		help();
+
+	if (diffDetection) {
+		// do motion
 	}
 	else {
-		std::cout << "Please type -help to see all possible commands." << std::endl;
-		return 0;
+		// do color
 	}
+
 	return 1;
 }
 
@@ -66,12 +104,19 @@ void processCaptureMotion(cv::VideoCapture capture) {
 }
 
 void processRecCaptureColor(cv::VideoCapture capture) {
-	cv::Mat frame;
-
+	cv::Mat frame, thresh_frame, output;
+	//cv::VideoWriter recorder = makeVideoWriter(capture, "output.avi");
+	cv::VideoWriter recorder = makeVideoWriter(capture, "lalala");
+	int imageCount = 0;
 	while (capture.get(CV_CAP_PROP_POS_FRAMES) < capture.get(CV_CAP_PROP_FRAME_COUNT) - 1) {
 		capture >> frame;
 		if (!frame.empty()) {
-			findContours(frame);
+			thresh_frame = performColorThreshold(frame);
+			displayFrame("thresh", thresh_frame);
+			output = findContours(frame, thresh_frame);
+			saveFrameToVideo(recorder, thresh_frame);
+			//saveFrameToVideo(recorder, output);
+			//saveFrame(frame, imageCount);
 		}
 		else {
 			break;
@@ -85,7 +130,7 @@ void processRecCaptureColor(cv::VideoCapture capture) {
 }
 
 void recordInputCapture(cv::VideoCapture capture) {
-	cv::VideoWriter recorder = makeVideoWriter(capture);
+	cv::VideoWriter recorder = makeVideoWriter(capture, "input.avi");
 	cv::Mat frame;
 	createDisplay("Output");
 	while (1) {
