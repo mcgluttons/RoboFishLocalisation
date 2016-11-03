@@ -71,9 +71,11 @@ cv::Mat colorThreshold(cv::Mat image, int color_threshold) {
 		inRange(hsv_image, cv::Scalar(160, 140, 120), cv::Scalar(255, 255, 255), upper_red);
 		addWeighted(lower_red, 1.0, upper_red, 1.0, 0.0, threshold_image);
 		break;
-	case YELLOW:
+	case YELLOW1:
 		inRange(hsv_image, cv::Scalar(0, 138, 115), cv::Scalar(53, 255, 255), threshold_image);
-		//inRange(hsv_image, cv::Scalar(0, 51, 40), cv::Scalar(45, 255, 255), threshold_image);
+		break;
+	case YELLOW2:
+		inRange(hsv_image, cv::Scalar(0, 51, 40), cv::Scalar(45, 255, 255), threshold_image);
 		break;
 	case WHITE:
 		inRange(hsv_image, cv::Scalar(11, 12, 142), cv::Scalar(40, 80, 170), threshold_image);

@@ -11,85 +11,163 @@
 #include "imageprocessing.h"
 
 void help();
-void processCaptureMotion(cv::VideoCapture);
-void processRecCaptureColor(cv::VideoCapture);
-void recordInputCapture(cv::VideoCapture);
-void getColorThresholdValues(cv::VideoCapture);
-void getContourAreaValues(cv::VideoCapture);
+void mouseCallBack(int, int, int, int, void*);
 
 int main(int argc, char** argv) {
-	
+
 	bool diffDetection = false;
 	bool threshTesting = false;
+	bool openRecording = false;
 	bool webCamera = false;
 	bool camChecked = false;
 	bool recordInput = false;
+	bool recordOutput = false;
+	bool showContours = false;
+	bool manualCenterSelection = false;
 	cv::VideoCapture capture1;
 	cv::VideoCapture capture2;
 
-	help();
-	
-	for (int i = 1; i < argc - 1; i++) {
-		if (std::strcmp(argv[i], "-d")) {
+	for (int i = 1; i < argc; i++) {
+		if (std::strcmp(argv[i], "-h") == 0) {
+			help();
+			return 1;
+		}
+		else if (std::strcmp(argv[i], "-d") == 0) {
 			// perform image differencing
 			diffDetection = true;
 		}
-		else if (std::strcmp(argv[i], "-c")) {
-			// perform color threshold testing
+		else if (std::strcmp(argv[i], "-t") == 0) {    // need to implement
+			// perform manual color thresholding
 			threshTesting = true;
 		}
-		else if (std::strcmp(argv[i], "-o")) {
-			// open recording as video capture
+		else if (std::strcmp(argv[i], "-r") == 0) {
+			// open recording
 			capture1 = openVideoRecording(argv[i + 1]);
+			openRecording = true;
 			i++;
 		}
-		else if (std::strcmp(argv[i], "-r")) {
+		else if (std::strcmp(argv[i], "-i") == 0) {
 			// record input capture
 			recordInput = true;
 		}
-		else if (std::strcmp(argv[i], "-w")) {
-			camChecked = true;
+		else if (std::strcmp(argv[i], "-o") == 0) {
+			recordOutput = true;
+		}
+		else if (std::strcmp(argv[i], "-w") == 0) {
 			// web camera or not
-			if (std::stoi(argv[i]) != 0) {
+			camChecked = true;
+			if (std::stoi(argv[i + 1]) != 0) {
 				webCamera = true;
 			}
 			i++;
 		}
-		else if (std::strcmp(argv[1], "-h") == 0) {
-			help();
+		else if (std::strcmp(argv[i], "-c") == 0) {
+			// show contouring 
+			showContours = true;
+		}
+		else if (std::strcmp(argv[i], "-s") == 0) {
+			// manual selection of center point
+			if (openRecording) {
+				manualCenterSelection = true;
+			}
+			else {
+				std::cout << "Cannot be done on a live capture." << std::endl;
+				std::cout << "Please use a recorded capture." << std::endl;
+				return 1;
+			}
+			
 		}
 		else {
 			std::cout << "Please type -h to see all possible commands." << std::endl;
-			return 0;
+			return 1;
 		}
 	}
 
-	// webcamera parameter must be specified
-	if (!camChecked) {
+	// webcamera parameter must be specified if a live capture is going to be used
+	if (!camChecked && !openRecording) {
 		std::cout << "Please specify whether there is a webcamera on your PC." << std::endl;
 		return(0);
 	}
 
-	// capture.get(CV_CAP_PROP_POS_FRAMES) + 1 < capture.get(CV_CAP_PROP_FRAME_COUNT) - 1
-
 	// start a live capture if a recorded one is not provided
-	if (!capture1.isOpened) {
+	if (!capture1.isOpened()) {
 		if (!webCamera) {
-			capture1 = openVideoCapture(0);
-			capture2 = openVideoCapture(1);
+			capture1 = openVideoCapture(0); // camera 1
+			//capture2 = openVideoCapture(1); // camera 2
 		}
 		else {
-			capture1 = openVideoCapture(1);
-			capture2 = openVideoCapture(2);
+			capture1 = openVideoCapture(1); // camera 1
+			//capture2 = openVideoCapture(2); // camera 2
 		}
 	}
 
-	if (diffDetection) {
-		// do motion
-	}
-	else {
-		// do color
-	}
+	cv::VideoWriter inRecorder1 = makeVideoWriter(capture1, "input1.avi");
+	cv::VideoWriter outRecorder1 = makeVideoWriter(capture1, "output1.avi");
+	//cv::VideoWriter inRecorder2 = makeVideoWriter(capture2, "input2.avi");
+	//cv::VideoWriter outRecorder2 = makeVideoWriter(capture2, "output2.avi");
+
+	cv::Mat frame1, frame2, frame3, frame4, binaryFrame1, binaryFrame2;
+	while (1) {
+		if (openRecording) {
+			if (capture1.get(CV_CAP_PROP_POS_FRAMES) + 1 == capture1.get(CV_CAP_PROP_FRAME_COUNT) - 1) {
+				return 1;
+			}
+		}
+		capture1 >> frame1;
+		//capture2 >> frame2;
+		if (recordInput) {
+			saveFrameToVideo(inRecorder1, frame1);
+			//saveFrameToVideo(inRecorder2, frame2);
+		}
+		if (manualCenterSelection) {
+			displayFrame("Input", frame1);
+			cv::setMouseCallback("Input", mouseCallBack, NULL);
+
+			char c = (char)cv::waitKey(0);
+			if (c == 27) {
+				break;
+			}
+			continue;
+		}
+		else if (diffDetection) {
+			capture1 >> frame3;
+			//capture2 >> frame4;
+			if (recordInput) {
+				saveFrameToVideo(inRecorder1, frame3);
+				//saveFrameToVideo(inRecorder2, frame4);
+			}
+			binaryFrame1 = frameSubtraction(frame1, frame3);
+			//binaryFrame2 = frameSubtraction(frame2, frame4);
+		}
+		else {
+			// color detection
+			if (!threshTesting) {
+				binaryFrame1 = performColorThreshold(frame1, YELLOW1);
+				//binaryFrame2 = performColorThreshold(frame2, YELLOW2);
+			}
+			else {
+				performManualColorThreshold(frame1);
+				char c = (char)cv::waitKey(5);
+				if (c == 27) {
+					break;
+				}
+				continue;
+			}
+		}
+		if (showContours) {
+			displayContours(frame1, binaryFrame1);
+			//displayContours(frame2, binaryFrame2);
+			if (recordOutput) {
+				saveFrameToVideo(outRecorder1, frame1);
+				//saveFrameToVideo(outRecorder2, frame2);
+			}
+		}
+		else {
+			findContourCenter(binaryFrame1);
+			//findContourCenter(binaryFrame2);
+		}
+
+	} // end of while
 
 	return 1;
 }
@@ -99,66 +177,13 @@ void help() {
 	// add all commands with descriptions
 }
 
-void processCaptureMotion(cv::VideoCapture capture) {
+void mouseCallBack(int event, int x, int y, int flags, void* userdata)
+{
+	if (event == cv::EVENT_LBUTTONDOWN)
+	{
+		std::cout << "Left button of the mouse is clicked - position (" << x << ", " << y << ")" << std::endl;
+	}
 	
 }
 
-void processRecCaptureColor(cv::VideoCapture capture) {
-	cv::Mat frame, thresh_frame, output;
-	//cv::VideoWriter recorder = makeVideoWriter(capture, "output.avi");
-	cv::VideoWriter recorder = makeVideoWriter(capture, "lalala");
-	int imageCount = 0;
-	while (capture.get(CV_CAP_PROP_POS_FRAMES) < capture.get(CV_CAP_PROP_FRAME_COUNT) - 1) {
-		capture >> frame;
-		if (!frame.empty()) {
-			thresh_frame = performColorThreshold(frame);
-			displayFrame("thresh", thresh_frame);
-			output = findContours(frame, thresh_frame);
-			saveFrameToVideo(recorder, thresh_frame);
-			//saveFrameToVideo(recorder, output);
-			//saveFrame(frame, imageCount);
-		}
-		else {
-			break;
-		}
-		
-		char c = (char)cv::waitKey(5);
-		if (c == 27) {
-			break;
-		}
-	}
-}
-
-void recordInputCapture(cv::VideoCapture capture) {
-	cv::VideoWriter recorder = makeVideoWriter(capture, "input.avi");
-	cv::Mat frame;
-	createDisplay("Output");
-	while (1) {
-		capture >> frame;
-		saveFrameToVideo(recorder, frame);
-		displayFrame("Output", frame);
-		char c = (char)cv::waitKey(5);
-		if (c == 27) {
-			break;
-		}
-	}
-}
-
-void getColorThresholdValues(cv::VideoCapture capture) {
-	cv::Mat frame;
-	capture >> frame;
-
-	while (1) {
-		performManualColorThreshold(frame);
-		char c = (char)cv::waitKey(5);
-		if (c == 27) {
-			break;
-		}
-		else if (c == 32) {
-			for (int i = 0; i < 100; i++) {
-				capture >> frame;
-			}
-		}
-	}
-}
 

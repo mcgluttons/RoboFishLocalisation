@@ -20,10 +20,11 @@
 */
 
 const int RED = 0;
-const int YELLOW = 1;
+const int YELLOW1 = 1;
 const int WHITE = 2;
 const int BLUE = 3;
 const int GREEN = 4;
+const int YELLOW2 = 5;
 
 /*
 ******************************************* Method Declarations *******************************************

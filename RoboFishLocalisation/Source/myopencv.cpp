@@ -37,7 +37,7 @@ cv::VideoCapture openVideoRecording(std::string arg) {
 cv::VideoCapture openVideoCapture(int arg) {
 	cv::VideoCapture capture(arg);
 	if (!capture.isOpened()) {
-		std::cout << "Recording failed to open" << std::endl;
+		std::cout << "Capture failed to open" << std::endl;
 		exit(EXIT_FAILURE);
 	}
 	return capture; // recorded capture
@@ -84,12 +84,10 @@ void saveFrame(cv::Mat frame, int &count) {
 * Return: cv::VideoWriter
 * Purpose: create a video writer for a specific video capture
 */
-
-//CV_FOURCC('D', 'I', 'V', 'X')
 cv::VideoWriter makeVideoWriter(cv::VideoCapture capture, std::string filename) {
 	int frame_width = capture.get(CV_CAP_PROP_FRAME_WIDTH);
 	int frame_height = capture.get(CV_CAP_PROP_FRAME_HEIGHT);
-	cv::VideoWriter recorder(filename, -1, 30, cv::Size(frame_width, frame_height), true);
+	cv::VideoWriter recorder(filename, CV_FOURCC('D', 'I', 'V', 'X'), 30, cv::Size(frame_width, frame_height), true);
 	return recorder;
 }
 
