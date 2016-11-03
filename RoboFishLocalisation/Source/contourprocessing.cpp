@@ -1,18 +1,34 @@
 /*
 ** File: contourprocessing.cpp
 ** Author: Justin Wolf
-** Date:
-** Description:
+** Date: 03/11/13
+** Description: Uses opencv's contour functionality to obtain and analyse the contours of binary frames.
+*/
+
+/*
+******************************************* Include Declarations ******************************************
 */
 
 #include "contourprocessing.h"
 
-
+/*
+****************************************** Variable Declarations ******************************************
+*/
 #define MIN_AREA 10000
 #define MAX_AREA 100000
 
 std::vector<cv::Vec4i> hierarchy;
 
+/*
+****************************************** Method Implementations ******************************************
+*/
+
+/*
+** Function: getFrameContours
+** Parameters: cv::Mat
+** Return: std::vector<std::vector<cv::Point>>
+** Purpose: Get all the contours from a frame
+*/
 std::vector<std::vector<cv::Point>> getFrameContours(cv::Mat frame) {
 	std::vector<std::vector<cv::Point>> contours;
 	
@@ -20,6 +36,12 @@ std::vector<std::vector<cv::Point>> getFrameContours(cv::Mat frame) {
 	return contours;
 }
 
+/*
+** Function: contoursExist
+** Parameters: std::vector<std::vector<cv::Point>>
+** Return: bool
+** Purpose: Checks if even contours were found
+*/
 bool contoursExist(std::vector<std::vector<cv::Point>> contours) {
 	if (contours.size() != 0) {
 		return true;
@@ -29,6 +51,12 @@ bool contoursExist(std::vector<std::vector<cv::Point>> contours) {
 	}
 }
 
+/*
+** Function: findContourByArea
+** Parameters: std::vector<std::vector<cv::Point>>, double, double
+** Return: std::vector<std::vector<cv::Point>>
+** Purpose: Find all contours within the vector of contours that match the area restrictions
+*/
 std::vector<std::vector<cv::Point>> findContourByArea(std::vector<std::vector<cv::Point>> contours, double minArea, double maxArea) {
 	int desiredContourIndex;
 	std::vector<std::vector<cv::Point>> desiredContour;
@@ -43,6 +71,12 @@ std::vector<std::vector<cv::Point>> findContourByArea(std::vector<std::vector<cv
 	return desiredContour;
 }
 
+/*
+** Function: findLargestContourIndex
+** Parameters: std::vector<std::vector<cv::Point>>
+** Return: int
+** Purpose: Finds the largest contour in a vector of contours
+*/
 int findLargestContourIndex(std::vector<std::vector<cv::Point>> contours) {
 	int largestContourIndex;
 	double largestArea = 0;
@@ -64,6 +98,12 @@ int findLargestContourIndex(std::vector<std::vector<cv::Point>> contours) {
 	}
 }
 
+/*
+** Function: findContourCenter
+** Parameters: std::vector<cv::Point>, int&, int&
+** Return: void
+** Purpose: Draws a bounding rectangle around the contour and then finds the centre of this rectangle.
+*/
 void findContourCenter(std::vector<cv::Point> contour, int& x, int& y) {
 	cv::Rect boundingRectangle = cv::boundingRect(contour);
 	
@@ -73,30 +113,14 @@ void findContourCenter(std::vector<cv::Point> contour, int& x, int& y) {
 
 
 /*
-* Function: drawContours
-* Parameters: cv::Mat, cv::vector<cv::vector<cv::Point>>, int
-* Return:
-* Purpose: Draw all contours
+** Function: drawContours
+** Parameters: cv::Mat, cv::vector<cv::vector<cv::Point>>
+** Return: cv::Mat
+** Purpose: Draw all contours
 */
 cv::Mat drawContours(cv::Mat source_image, std::vector<std::vector<cv::Point>> contours) {
 	cv::drawContours(source_image, contours, -1, CV_RGB(250, 255, 0), 2, 6, hierarchy);
 	return source_image;
-}
-
-cv::Point analyseThresholdedFrameContours(cv::Mat thresh_frame) {
-	int x, y;
-	std::vector<std::vector<cv::Point>> profiles;
-	std::vector<std::vector<cv::Point>> contours = getFrameContours(thresh_frame);
-	if (contoursExist(contours)) {
-		// find center of the contour that meets the area criteria
-		profiles = findContourByArea(contours, MIN_AREA, MAX_AREA);
-		if (profiles.size() > 0) {
-			findContourCenter(profiles[0], x, y);
-			cv::Point contourCenter = cv::Point(x, y);
-			return contourCenter;
-		}
-	}
-	return(cv::Point(0, 0));
 }
 
 

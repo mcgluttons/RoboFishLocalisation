@@ -1,8 +1,8 @@
 /*
 ** File: colorprocessing.h
 ** Author: Justin Wolf
-** Date:
-** Description:
+** Date: 03/11/16
+** Description: Header file for colorprocessing.cpp
 */
 
 #ifndef COLORPROCESSING_H

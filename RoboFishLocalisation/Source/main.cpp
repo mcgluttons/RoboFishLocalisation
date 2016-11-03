@@ -1,8 +1,8 @@
 /*
 ** File: main.cpp
 ** Author: Justin Wolf
-** Date:
-** Description:
+** Date: 04/11/16
+** Description: main function for RoboFishLocalisation program
 */
 
 #include <iostream>
@@ -14,6 +14,7 @@ void help();
 void mouseCallBack(int, int, int, int, void*);
 
 int main(int argc, char** argv) {
+	std::cout << "Use -h for a list of all possible settings." << std::endl;
 
 	bool diffDetection = false;
 	bool threshTesting = false;
@@ -172,16 +173,36 @@ int main(int argc, char** argv) {
 	return 1;
 }
 
+/*
+* Function: help
+* Parameters: N/A
+* Return: void
+* Purpose: Prints all operators for the RoboFishLocalisation program
+*/
 void help() {
 	std::cout << "Please use the following list of commands for the RoboFishLocalistion System." << std::endl;
-	// add all commands with descriptions
+	std::cout << "Use -h for a list of all possible settings." << std::endl;
+	std::cout << "Use -d to use the image differencing detection method." << std::endl;
+	std::cout << "Use -w to specify whether a webcamera is built into your PC. 0 for no and 1 for yes." << std::endl;
+	std::cout << "Use -r to open a video file. This must be followed by the file location." << std::endl;
+	std::cout << "Use -i to record the input capture." << std::endl;
+	std::cout << "Use -o to record the output if drawing contours is enabled." << std::endl;
+	std::cout << "Use -c to show the contouring of the captured frames." << std::endl;
+	std::cout << "Use -t to perform manual color thresholding." << std::endl;
+	std::cout << "Use -s to operate in a manual tracking mode." << std::endl;
 }
 
+/*
+* Function: mouseCallBack
+* Parameters: int, int, int, int, void*
+* Return: void
+* Purpose: Prints out the location of the mouse pointer in a frame on a left button press
+*/
 void mouseCallBack(int event, int x, int y, int flags, void* userdata)
 {
 	if (event == cv::EVENT_LBUTTONDOWN)
 	{
-		std::cout << "Left button of the mouse is clicked - position (" << x << ", " << y << ")" << std::endl;
+		std::cout << "x: " << x << " y: " << y << std::endl;
 	}
 	
 }

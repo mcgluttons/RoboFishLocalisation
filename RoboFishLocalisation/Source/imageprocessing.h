@@ -1,17 +1,19 @@
 /*
 ** File: imageprocessing.h
 ** Author: Justin Wolf
-** Date:
-** Description:
+** Date: 03/11/2016
+** Description: Header file for imageprocessing.cpp
 */
 
 #ifndef IMAGEPROCESSING_H
 #define IMAGEPROCESSING_H
 
+/*
+******************************************* Include Declarations ******************************************
+*/
+
 #include <iostream>
-
 #include "opencv2/opencv.hpp"
-
 #include "myopencv.h"
 #include "colorprocessing.h"
 #include "contourprocessing.h"

@@ -1,10 +1,10 @@
 /*
-* File: colorprocessing.cpp
-* Author: Justin Wolf
-* Date:
-*
-* Description: Uses opencv's color detection and modification features to allow an image to be thresholded
-*              by its color.
+** File: colorprocessing.cpp
+** Author: Justin Wolf
+** Date: 03/11/16
+**
+** Description: Uses opencv's color detection and modification features to allow an image to be thresholded
+**              by its color.
 */
 
 /*
@@ -59,7 +59,8 @@ cv::Mat convertToGREY(cv::Mat image) {
 * Function: colorThreshold
 * Parameters: cv::Mat, int
 * Return: cv::Mat
-* Purpose: Converts image from BGR to HSV and then creates a binary image based on color thresholds
+* Purpose: Converts image from BGR to HSV
+*          Creates a binary image based on the defined color thresholds
 */
 cv::Mat colorThreshold(cv::Mat image, int color_threshold) {
 	cv::Mat hsv_image, threshold_image, lower_red, upper_red;
@@ -109,13 +110,13 @@ cv::Mat manualColorThreshold(cv::Mat image) {
 * Function: createColorTrackBars
 * Parameters: N/A
 * Return: void
-* Purpose: Create the trackbars to allow thresholding of an HSV image
+* Purpose: Create the trackbars to allow manual thresholding of an HSV image
 */
 void createColorTrackBars() {
 
 	cv::namedWindow("Color Thresholds", CV_WINDOW_AUTOSIZE);
 
-	//Create trackbars in "Control" window
+	//Create trackbars in "Color Thresholds" window
 	cvCreateTrackbar("LowH", "Color Thresholds", &iLowH, 179); // Hue (0 - 179)
 	cvCreateTrackbar("HighH", "Color Thresholds", &iHighH, 179);
 	cvCreateTrackbar("LowS", "Color Thresholds", &iLowS, 255); // Saturation (0 - 255)

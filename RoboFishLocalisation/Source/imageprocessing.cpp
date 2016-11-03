@@ -1,11 +1,14 @@
 /*
 ** File: imageprocessing.cpp
 ** Author: Justin Wolf
-** Date:
-** Description:
+** Date: 03/11/16
+** Description: Uses the lower level functions from contourprocessing and colorporcessing to link
+**              together the needed functions to achieve tracking.
 */
 
-
+/*
+******************************************* Include Declarations ******************************************
+*/
 
 #include "imageprocessing.h"
 
@@ -17,7 +20,7 @@
 * Function: testColorThreshold
 * Parameters: cv::Mat
 * Return: void
-* Purpose: Displaying the results of the threshold set values
+* Purpose: Displays the binary frame resulting from applying the defined threshold values
 */
 void testColorThreshold(cv::Mat frame, int color) {
 	cv::Mat thresh_frame;
@@ -30,7 +33,7 @@ void testColorThreshold(cv::Mat frame, int color) {
 * Function: performColorThreshold
 * Parameters: cv::Mat
 * Return: cv::Mat
-* Purpose:
+* Purpose: Applies the defined color thresholds and returns a binary image
 */
 cv::Mat performColorThreshold(cv::Mat frame, int color) {
 	cv::Mat thresh_frame;
@@ -42,7 +45,7 @@ cv::Mat performColorThreshold(cv::Mat frame, int color) {
 * Function: performManualColorThreshold
 * Parameters: cv::Mat
 * Return: void
-* Purpose: Allow manual color thresholding
+* Purpose: Allow manual color thresholding uses the threshold values set by the trackbars
 */
 void performManualColorThreshold(cv::Mat frame) {
 	cv::Mat thresh_frame;
@@ -54,6 +57,13 @@ void performManualColorThreshold(cv::Mat frame) {
 
 /*
 ******************************************* Method Declarations (Image Differencing Method) *******************************************
+*/
+
+/*
+* Function: frameSubtraction
+* Parameters: cv::Mat, cv::Mat
+* Return: cv::Mat
+* Purpose: Finds the difference between two frames while applying some basi filters
 */
 cv::Mat frameSubtraction(cv::Mat frame1, cv::Mat frame2) {
 	cv::Mat gray_frame1, gray_frame2, thresh_frame, diff_frame;
@@ -75,10 +85,10 @@ cv::Mat frameSubtraction(cv::Mat frame1, cv::Mat frame2) {
 */
 
 /*
-* Function: findContours
+* Function: findContourCenter
 * Parameters: cv::Mat
 * Return: void
-* Purpose: Allow manual color thresholding
+* Purpose: Finds the centre of the contour in the binary image
 */
 void findContourCenter(cv::Mat thresh_frame) {
 	int x, y;
@@ -91,6 +101,12 @@ void findContourCenter(cv::Mat thresh_frame) {
 	}
 }
 
+/*
+* Function: displayContours
+* Parameters: cv::Mat, cv::Mat
+* Return: cv::Mat
+* Purpose: Show tracking data on the input image
+*/
 cv::Mat displayContours(cv::Mat frame, cv::Mat thresh_frame) {
 	int x, y;
 	std::vector<std::vector<cv::Point>> contours;

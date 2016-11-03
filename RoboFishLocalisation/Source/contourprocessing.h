@@ -1,12 +1,16 @@
 /*
 ** File: contourprocessing.h
 ** Author: Justin Wolf
-** Date:
-** Description: 
+** Date: 03/11/16
+** Description: Header file for contourprocessing.cpp
 */
 
 #ifndef CONTOURPROCESSING_H
 #define CONTOURPROCESSING_H
+
+/*
+******************************************* Include Declarations ******************************************
+*/
 
 #include "opencv2\imgproc.hpp"
 #include <iostream>
@@ -16,12 +20,10 @@
 */
 
 std::vector<std::vector<cv::Point>> getFrameContours(cv::Mat);
-int findLargestContourIndex(std::vector<std::vector<cv::Point>>);
+bool contoursExist(std::vector<std::vector<cv::Point>>);
 std::vector<std::vector<cv::Point>> findContourByArea(std::vector<std::vector<cv::Point>>, double, double);
+int findLargestContourIndex(std::vector<std::vector<cv::Point>>);
 void findContourCenter(std::vector<cv::Point>, int&, int&);
-cv::Point analyseThresholdedFrameContours(cv::Mat);
-
-
-
+cv::Mat drawContours(cv::Mat, std::vector<std::vector<cv::Point>>);
 
 #endif CONTOURPROCESSING_H

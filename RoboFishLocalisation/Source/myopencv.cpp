@@ -3,15 +3,24 @@
 ** Date: 17/10/2016
 **
 ** File: myopencv
-** Description:
+** Description: Basic frame manipulations using the opencv functions.
 */
 
-
+/*
+******************************************* Include Declarations ******************************************
+*/
 
 #include "myopencv.h"
 
+/*
+****************************************** Variable Declarations ******************************************
+*/
 
 int imageCount = 0;
+
+/*
+******************************************* Method Declarations *******************************************
+*/
 
 /*
 * Function: openVideoRecording
@@ -47,7 +56,7 @@ cv::VideoCapture openVideoCapture(int arg) {
 * Function: createDisplay
 * Parameters: std::string
 * Return: void
-* Purpose: create a display window
+* Purpose: Create a display window
 */
 void createDisplay(std::string windowName) {
 	cv::namedWindow(windowName, CV_WINDOW_KEEPRATIO);
@@ -57,7 +66,7 @@ void createDisplay(std::string windowName) {
 * Function: displayFrame
 * Parameters: std::string, cv::Mat
 * Return: void
-* Purpose: display the frame in a named window
+* Purpose: Display the frame in a named window
 */
 void displayFrame(std::string windowName, cv::Mat frame) {
 	if (!frame.empty()) {
@@ -70,7 +79,7 @@ void displayFrame(std::string windowName, cv::Mat frame) {
 * Function: saveFrame
 * Parameters: cv::Mat
 * Return: void
-* Purpose: save a frame to a png image
+* Purpose: Save a frame to a png image
 */
 void saveFrame(cv::Mat frame, int &count) {
 	std::string filename = "capture" + std::to_string(count) + ".png";
@@ -82,7 +91,7 @@ void saveFrame(cv::Mat frame, int &count) {
 * Function: createVideoWriter
 * Parameters: cv::VideoCapture
 * Return: cv::VideoWriter
-* Purpose: create a video writer for a specific video capture
+* Purpose: Create a video writer for a specific video capture
 */
 cv::VideoWriter makeVideoWriter(cv::VideoCapture capture, std::string filename) {
 	int frame_width = capture.get(CV_CAP_PROP_FRAME_WIDTH);
@@ -95,7 +104,7 @@ cv::VideoWriter makeVideoWriter(cv::VideoCapture capture, std::string filename) 
 * Function: saveFrameToVideo
 * Parameters: cv::VideoWriter, cv::Mat
 * Return: void
-* Purpose: save a frame to a video file
+* Purpose: Save a frame to a video file
 */
 void saveFrameToVideo(cv::VideoWriter recorder, cv::Mat frame) {
 	recorder.write(frame);
