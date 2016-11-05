@@ -87,17 +87,18 @@ cv::Mat frameSubtraction(cv::Mat frame1, cv::Mat frame2) {
 /*
 * Function: findContourCenter
 * Parameters: cv::Mat
-* Return: void
+* Return: cv::Point2d
 * Purpose: Finds the centre of the contour in the binary image
 */
-void findContourCenter(cv::Mat thresh_frame) {
+void getContourCenter(cv::Mat thresh_frame, cv::Point2d& centroid) {
 	int x, y;
 	std::vector<std::vector<cv::Point>> contours;
 	contours = getFrameContours(thresh_frame);
 	int index = findLargestContourIndex(contours);
 	if (index != -1) {
 		findContourCenter(contours[index], x, y);
-		std::cout << "x: " << x << " y: " << y << std::endl;
+		centroid.x = x;
+		centroid.y = y;
 	}
 }
 

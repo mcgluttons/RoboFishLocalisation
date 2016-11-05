@@ -6,12 +6,17 @@
 */
 
 #include <iostream>
+#include <fstream>
 #include "opencv2\imgproc.hpp"
 #include "myopencv.h"
 #include "imageprocessing.h"
 
+cv::Point2d centroid1;
+//cv::Point2d centroid2;
+
 void help();
 void mouseCallBack(int, int, int, int, void*);
+void writeToFile(std::ofstream&, int, cv::Point2d);
 
 int main(int argc, char** argv) {
 	std::cout << "Use -h for a list of all possible settings." << std::endl;
@@ -26,7 +31,9 @@ int main(int argc, char** argv) {
 	bool showContours = false;
 	bool manualCenterSelection = false;
 	cv::VideoCapture capture1;
-	cv::VideoCapture capture2;
+	//cv::VideoCapture capture2;
+	int frame1Count = 0;
+	//int frame2Count = 0;
 
 	for (int i = 1; i < argc; i++) {
 		if (std::strcmp(argv[i], "-h") == 0) {
@@ -37,7 +44,7 @@ int main(int argc, char** argv) {
 			// perform image differencing
 			diffDetection = true;
 		}
-		else if (std::strcmp(argv[i], "-t") == 0) {    // need to implement
+		else if (std::strcmp(argv[i], "-t") == 0) {
 			// perform manual color thresholding
 			threshTesting = true;
 		}
@@ -107,23 +114,61 @@ int main(int argc, char** argv) {
 	//cv::VideoWriter inRecorder2 = makeVideoWriter(capture2, "input2.avi");
 	//cv::VideoWriter outRecorder2 = makeVideoWriter(capture2, "output2.avi");
 
+	createDisplay("Window1");
+	//createDisplay("Window2");
+
 	cv::Mat frame1, frame2, frame3, frame4, binaryFrame1, binaryFrame2;
+	std::ofstream outputFile1;
+	//std::ofstream outputFile2;
+	outputFile1.open("output1.txt");
+	//outputFile2.open("output2.txt");
 	while (1) {
+
+		// check for ending of recorded input capture
 		if (openRecording) {
 			if (capture1.get(CV_CAP_PROP_POS_FRAMES) + 1 == capture1.get(CV_CAP_PROP_FRAME_COUNT) - 1) {
 				return 1;
 			}
 		}
-		capture1 >> frame1;
-		//capture2 >> frame2;
+
+		if (diffDetection) {
+			if (frame1Count != 0) {
+				frame1 = frame3;
+				//frame2 = frame4;
+			}
+			else {
+				capture1 >> frame1;
+				frame1Count++;
+				//capture2 >> frame2;
+				//frame2Count++;
+
+				displayFrame("Window1", frame1);
+				//displayFrame("Window2", frame2);
+
+			}
+		}
+		else {
+			capture1 >> frame1;
+			frame1Count++;
+			//capture2 >> frame2;
+			//frame2Count++;
+
+			displayFrame("Window1", frame1);
+			//displayFrame("Window2", frame2);
+		}
+
 		if (recordInput) {
 			saveFrameToVideo(inRecorder1, frame1);
 			//saveFrameToVideo(inRecorder2, frame2);
 		}
+
 		if (manualCenterSelection) {
+			centroid1.x = -1;
+			centroid1.y = -1;
+
 			displayFrame("Input", frame1);
 			cv::setMouseCallback("Input", mouseCallBack, NULL);
-
+			writeToFile(outputFile1, frame1Count, centroid1);
 			char c = (char)cv::waitKey(0);
 			if (c == 27) {
 				break;
@@ -132,7 +177,13 @@ int main(int argc, char** argv) {
 		}
 		else if (diffDetection) {
 			capture1 >> frame3;
+			frame1Count++;
 			//capture2 >> frame4;
+			//frame2Count++;
+
+			displayFrame("Window1", frame3);
+			//displayFrame("Window2", frame4);
+
 			if (recordInput) {
 				saveFrameToVideo(inRecorder1, frame3);
 				//saveFrameToVideo(inRecorder2, frame4);
@@ -155,6 +206,7 @@ int main(int argc, char** argv) {
 				continue;
 			}
 		}
+
 		if (showContours) {
 			displayContours(frame1, binaryFrame1);
 			//displayContours(frame2, binaryFrame2);
@@ -164,11 +216,21 @@ int main(int argc, char** argv) {
 			}
 		}
 		else {
-			findContourCenter(binaryFrame1);
-			//findContourCenter(binaryFrame2);
+			getContourCenter(binaryFrame1, centroid1);
+			//getContourCenter(binaryFrame2, centroid2);
+			writeToFile(outputFile1, frame1Count, centroid1);
+			//writeToFile(outputFile2, frame1Count, centroid2);
+		}
+
+		char c = (char)cv::waitKey(5);
+		if (c == 27) {
+			break;
 		}
 
 	} // end of while
+
+	outputFile1.close();
+	//outputFile2.close();
 
 	return 1;
 }
@@ -185,6 +247,7 @@ void help() {
 	std::cout << "Use -d to use the image differencing detection method." << std::endl;
 	std::cout << "Use -w to specify whether a webcamera is built into your PC. 0 for no and 1 for yes." << std::endl;
 	std::cout << "Use -r to open a video file. This must be followed by the file location." << std::endl;
+	std::cout << "Use -l to show the input capture in a display window." << std::endl;
 	std::cout << "Use -i to record the input capture." << std::endl;
 	std::cout << "Use -o to record the output if drawing contours is enabled." << std::endl;
 	std::cout << "Use -c to show the contouring of the captured frames." << std::endl;
@@ -202,9 +265,13 @@ void mouseCallBack(int event, int x, int y, int flags, void* userdata)
 {
 	if (event == cv::EVENT_LBUTTONDOWN)
 	{
-		std::cout << "x: " << x << " y: " << y << std::endl;
+		centroid1.x = x;
+		centroid1.y = y;
 	}
-	
+}
+
+void writeToFile(std::ofstream& outputFile, int frameCount, cv::Point2d centroid) {
+	outputFile << "Frame " << frameCount << ": Coordinate(" << centroid.x << ", " << centroid.y << ")" << std::endl;
 }
 
 
